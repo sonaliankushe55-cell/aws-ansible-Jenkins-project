@@ -16,21 +16,32 @@ pipeline {
             }
         }
 
-        stage('Install Python Dependencies') {
+        stage('Setup Python Virtual Environment') {
             steps {
-                sh 'pip3 install boto3 botocore'
+                sh '''
+                python3 -m venv venv
+                . venv/bin/activate
+                pip install --upgrade pip
+                pip install boto3 botocore ansible
+                '''
             }
         }
 
         stage('Install Ansible Collection') {
             steps {
-                sh 'ansible-galaxy collection install amazon.aws'
+                sh '''
+                . venv/bin/activate
+                ansible-galaxy collection install amazon.aws
+                '''
             }
         }
 
         stage('Run Ansible Playbook') {
             steps {
-                sh 'ansible-playbook playbook.yml'
+                sh '''
+                . venv/bin/activate
+                ansible-playbook playbook.yml
+                '''
             }
         }
     }
