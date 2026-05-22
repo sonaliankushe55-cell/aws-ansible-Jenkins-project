@@ -40,7 +40,7 @@ pipeline {
             steps {
                 sh '''
                 . venv/bin/activate
-                ansible-playbook create-ec2.yml
+                ansible-playbook create_ec2.yml
                 '''
             }
         }
