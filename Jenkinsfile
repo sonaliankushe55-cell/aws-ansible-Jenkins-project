@@ -38,10 +38,22 @@ pipeline {
 
         stage('Run Ansible Playbook') {
             steps {
-                sh '''
-                . venv/bin/activate
-                ansible-playbook create_ec2.yml
-                '''
+
+                withCredentials([usernamePassword(
+                    credentialsId: 'aws-creds',
+                    usernameVariable: 'AWS_ACCESS_KEY_ID',
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                )]) {
+
+                    sh '''
+                    . venv/bin/activate
+
+                    export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                    export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+
+                    ansible-playbook -i localhost, create_ec2.yml
+                    '''
+                }
             }
         }
     }
