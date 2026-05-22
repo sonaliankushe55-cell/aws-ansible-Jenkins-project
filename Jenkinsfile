@@ -18,25 +18,19 @@ pipeline {
 
         stage('Install Python Dependencies') {
             steps {
-                bat 'pip install boto3 botocore'
+                sh 'pip3 install boto3 botocore'
             }
         }
 
         stage('Install Ansible Collection') {
             steps {
-                bat 'ansible-galaxy collection install amazon.aws'
+                sh 'ansible-galaxy collection install amazon.aws'
             }
         }
 
         stage('Run Ansible Playbook') {
             steps {
-                withCredentials([
-                    [$class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'aws-creds']
-                ]) {
-
-                    bat 'ansible-playbook create_ec2.yml'
-                }
+                sh 'ansible-playbook playbook.yml'
             }
         }
     }
