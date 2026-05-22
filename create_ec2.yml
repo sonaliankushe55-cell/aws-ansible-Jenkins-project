@@ -1,0 +1,60 @@
+---
+- name: Create EC2 Instance
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    region: ap-south-1
+    key_name: ENE-Ansible-server-key
+    instance_type: t2.micro
+    ami_id: ami-07a00cf47dbbc844
+
+  tasks:
+
+    - name: Create Security Group
+      amazon.aws.ec2_group:
+        name: ansible-sg
+        description: Security Group for Ansible
+        region: ap-south-1
+
+        rules:
+          - proto: tcp
+            ports:
+              - 22
+            cidr_ip: 0.0.0.0/0
+
+          - proto: tcp
+            ports:
+              - 80
+            cidr_ip: 0.0.0.0/0
+
+          - proto: tcp
+            ports:
+              - 8080
+            cidr_ip: 0.0.0.0/0
+
+      register: security_group
+
+    - name: Launch EC2 Instance
+      amazon.aws.ec2_instance:
+        name: ansible-server
+        key_name: ENE-Ansible-server-key
+        instance_type: t2.micro
+        image_id: ami-07a00cf47dbbc844c
+        region: ap-south-1
+        security_group: ansible-sg
+        wait: true
+
+        network:
+          assign_public_ip: true
+
+        tags:
+          Environment: Dev
+          Project: Ansible
+
+      register: ec2
+
+    - name: Display EC2 Details
+      debug:
+        var: ec2
